@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 bitvec = "1.0.1"
 fxhash = "0.2.1"
-murmur3 = "0.5.2"
