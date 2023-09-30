@@ -8,6 +8,13 @@ pub struct BloomFilter {
 }
 
 impl BloomFilter {
+    /// Adds an item to the bloom filter.
+    /// ```
+    /// # use rbloom::*;
+    /// # let mut bloom_filter = new_exact(3, 10);
+    /// bloom_filter.add(&"hello world");
+    /// assert_eq!(true, bloom_filter.test(&"hello world"));
+    /// ```
     pub fn add<T>(&mut self, item: &T)
         where T: Hash {
         for hash in get_hashes(item, self.k) {
@@ -16,6 +23,13 @@ impl BloomFilter {
         }
     }
 
+    /// Tests for existance of an item in the bloom filter.
+    /// ```
+    /// # use rbloom::*;
+    /// # let mut bloom_filter = new_exact(3, 10);
+    /// let found = bloom_filter.test(&"hello world");
+    /// assert_eq!(false, found);
+    /// ```
     pub fn test<T>(&self, item: &T) -> bool
         where T: Hash {
             get_hashes(item, self.k)
@@ -34,6 +48,15 @@ fn hash_with_seed<T>(item: &T, seed: usize) -> u32 where T: Hash {
     hasher.finish() as u32
 }
 
+/// creates a new bloom filter struct, for approximately `n` items with false positive rate of `p`
+/// Example:
+/// ```
+/// let bloom_filter = rbloom::new(1000, 0.001);
+/// ```
+/// this code creates a new bloom filter that for approximately 1000 items will have a false
+/// positive rate of 0.1%.
+/// ```
+///
 pub fn new(n: usize, p: f64) -> BloomFilter {
     let log2 = 2.0f64.ln();
     let m = (((n as f64) * (p as f64).ln() * -1.0f64) / (log2 * log2)).ceil() as usize;
@@ -42,7 +65,12 @@ pub fn new(n: usize, p: f64) -> BloomFilter {
     new_exact(k, m)
 }
 
-pub fn new_exact(k: usize, m:usize) -> BloomFilter {
+/// creates a bloom filter struct of length `m` using `k` hash functions per operation
+/// Example:
+/// ```
+/// let bloom_filter = rbloom::new_exact(2, 100);
+/// ```
+pub fn new_exact(k: usize, m: usize) -> BloomFilter {
     assert!(k < m, "k cannot be larger than m");
     BloomFilter {
         bit_vec: bitvec![0; m],
@@ -115,5 +143,23 @@ mod tests {
         let mut b = new_exact(3, 100);
         b.add(&"hello world");
         assert_eq!(b.bit_vec.as_bitslice().count_ones(), 3);
+    }
+
+    #[test]
+    #[should_panic]
+    fn new_with_p_greater_than_1() {
+        let _b = new(1000, 1.2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn new_with_p_smaller_than_0() {
+        let _b = new(1000, -0.1);
+    }
+
+    #[test]
+    #[should_panic]
+    fn new_exact_k_greater_than_m() {
+        let _b = new_exact(100, 10);
     }
 }
