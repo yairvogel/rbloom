@@ -2,6 +2,16 @@
 name = "rbloom"
 version = "0.1.0"
 edition = "2021"
+authors = ["Yair Vogel <yairvogel@gmail.com>"]
+license = "MIT"
+description = "simple, efficient and minimalistic bloom filter"
+homepage = "https://github.com/jedisct1/rust-bloom-filter"
+repository = "https://github.com/jedisct1/rust-bloom-filter"
+readme = "README.md"
+keywords = ["bloomfilter", "bloom", "filter"]
+exclude = [
+    ".gitignore"
+]
 
 [dependencies]
 bitvec = "1.0.1"
